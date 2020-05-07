@@ -1,0 +1,34 @@
+---
+version: '3'
+
+services:
+  hydra:
+    image: oryd/hydra:1.4.8
+    ports:
+      # Public port
+      - "4444:4444"
+      # Admin port
+      - "4445:4445"
+      # Admin port
+      - "5555:5555"
+    command:
+      serve all --dangerous-force-http
+    environment:
+      - URLS_SELF_ISSUER=http://127.0.0.1:4444
+      - URLS_CONSENT=http://127.0.0.1:3000/consent
+      - URLS_LOGIN=http://127.0.0.1:3000/login
+      - URLS_LOGOUT=http://127.0.0.1:3000/logout
+      - DSN=memory
+      - SECRETS_SYSTEM=youReallyNeedToChangeThis
+      - OIDC_SUBJECT_IDENTIFIERS_SUPPORTED_TYPES=public,pairwise
+      - OIDC_SUBJECT_IDENTIFIERS_PAIRWISE_SALT=youReallyNeedToChangeThis
+
+  consent:
+    image: jlevesy/hail-hydra:v0.0.1
+    ports:
+      - "3000:3000"
+    command:
+      - '-a'
+      - 'http://hydra:4445'
+      - '-b'
+      - ':3000'
